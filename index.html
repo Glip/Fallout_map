@@ -1,0 +1,285 @@
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+<script src="//ajax.googleapis.com/ajax/libs/jquery/2.0.3/jquery.min.js"></script>
+<style>
+	body {margin:0; padding:0; background:#000;}
+	 @font-face {
+    font-family: fallout_display; /* Гарнитура шрифта */
+    src: url(FSEX300.ttf); /* Путь к файлу со шрифтом */
+  }
+	.wrapper {
+		height:1067px;
+		width:1200px;
+		margin:0 auto;
+		background: url(img/map.jpg) no-repeat;
+		position:relative;
+		font-family: fallout_display;}
+	.wrapper .pic img {
+		width:100%;
+		height:auto;}
+	.marker {
+		position:absolute;
+		height:50px;
+		width:53px;
+		cursor:pointer;
+		border-radius:50%;
+		border: 0px solid black;}
+	.marker2 {
+		position:absolute;
+		border: 0px solid black;
+		color: #5afc2d;
+		font-size: 20px;}
+	.marker a {
+		display:block;
+		border-radius:50%;
+		text-decoration:none;
+		height:100%;
+		transition: all 0.4s ease 0s;}
+	.marker a:hover .message {
+		opacity:1;
+		display:block;}
+	#one {top:360px; right:344px;}/* Визард */
+	#one_text {top:415px; right:352px;}/* Визард */
+	#two {top:495px; right:342px;} /* Макрейдж */
+	#two_text {top:550px; right:332px;} /* Макрейдж */
+	#three {top:633px; right:180px;} /* Эльфы */
+	#three_text {top:688px; right:150px;} /* Эльфы */
+	#four {top:713px; right:423px;} /* Марго */
+	#four_text {top:768px; right:430px;} /* Марго */
+	#five {top:797px; right:559px;} /* Мандос */
+	#five_text {top:853px; right:568px;} /* Мандос */
+	#six {top:551px; right:560px; width:22px; height:22px;} /* Убежище Х */
+	#six_text {top:575px; right:553px;} /* Убежище Х */
+	#seven {top:551px; right:476px; width:22px; height:22px;} /* Крепость в низине */
+	#seven_text {top:572px; right:471px;} /* Крепость в низине */
+	#eight {top:509px; right:402px; width:22px; height:22px;} /* Землянка */
+	#eight_text {top:530px; right:395px;} /* Землянка */
+	#nine {top:620px; right:411px; width:22px; height:22px;} /* Бар */
+	#nine_text {top:645px; right:406px;} /* Бар */
+	#ten {top:836px; right:380px; width:22px; height:22px;} /* Оружейники */
+	#ten_text {top:862px; right:342px;} /* Оружейники */
+	#eleven {top:823px; right:220px; width:22px; height:22px;} /* Бактрия */
+	#eleven_text {top:847px; right:216px;} /* Бактрия */
+	#twelve {top:240px; right:1100px; width:22px; height:22px;} /* Бабка */
+	#twelve_text {top:262px; right:1070px;} /* Бабка */
+	/* Окна */
+	.modal_div {
+	width: 600px; 
+	height: 550px; /* Размеры должны быть фиксированы */
+	border-radius: 5px;
+	border: 3px #000 solid;
+	background: #fff;
+	position: fixed; /* чтобы окно было в видимой зоне в любом месте */
+	top: 5%; /* отступаем сверху 45%, остальные 5% подвинет скрипт */
+	left: 37%; /* половина экрана слева */
+	margin-top: -300px;
+	margin-left: -150px; /* тут вся магия центровки css, отступаем влево и вверх минус половину ширины и высоты соответственно =) */
+	display: none; /* в обычном состоянии окна не должно быть */
+	opacity: 0; /* полностью прозрачно для анимирования */
+	z-index: 5; /* окно должно быть наиболее большем слое */
+	padding: 20px 10px;
+}
+	/* Кнопка закрыть для тех кто в танке) */
+	.modal_close {
+	width: 21px;
+	height: 21px;
+	position: absolute;
+	top: 10px;
+	right: 10px;
+	cursor: pointer;
+	display: block;
+}
+	/* Подложка */
+	#overlay {
+	z-index: 3; /* подложка должна быть выше слоев элементов сайта, но ниже слоя модального окна */
+	position: fixed; /* всегда перекрывает весь сайт */
+	background-color: #000; /* черная */
+	opacity: 0.8; /* но немного прозрачна */
+	width: 100%; 
+	height: 100%; /* размером во весь экран */
+	top: 0; 
+	left: 0; /* сверху и слева 0, обязательные свойства! */
+	cursor: pointer;
+	display: none; /* в обычном состоянии её нет) */
+}
+</style>
+	<script type="text/javascript">
+$(document).ready(function() { // запускаем скрипт после загрузки всех элементов
+    /* засунем сразу все элементы в переменные, чтобы скрипту не приходилось их каждый раз искать при кликах */
+    var overlay = $('#overlay'); // подложка, должна быть одна на странице
+    var open_modal = $('.open_modal'); // все ссылки, которые будут открывать окна
+    var close = $('.modal_close, #overlay'); // все, что закрывает модальное окно, т.е. крестик и оверлэй-подложка
+    var modal = $('.modal_div'); // все скрытые модальные окна
+
+     open_modal.click( function(event){ // ловим клик по ссылке с классом open_modal
+         event.preventDefault(); // вырубаем стандартное поведение
+         var div = $(this).attr('href'); // возьмем строку с селектором у кликнутой ссылки
+         overlay.fadeIn(400, //показываем оверлэй
+             function(){ // после окончания показывания оверлэя
+                 $(div) // берем строку с селектором и делаем из нее jquery объект
+                     .css('display', 'block') 
+                     .animate({opacity: 1, top: '50%'}, 200); // плавно показываем
+         });
+     });
+
+     close.click( function(){ // ловим клик по крестику или оверлэю
+            modal // все модальные окна
+             .animate({opacity: 0, top: '45%'}, 200, // плавно прячем
+                 function(){ // после этого
+                     $(this).css('display', 'none');
+                     overlay.fadeOut(400); // прячем подложку
+                 }
+             );
+     });
+});
+</script>
+</head>
+<body>
+<div class="wrapper">
+	<!-- Монастырь Визарда -->
+	<div class="marker" id="one">
+		<a href="#one_modal" class="open_modal"><img src="Circle_big.png"></a>
+	</div>
+	<div class="marker2" id="one_text">
+		???
+	</div>
+	<!-- Макрейдж -->
+	<div class="marker" id="two">
+		<a href="#two_modal" class="open_modal"><img src="Circle_big.png"></a>
+	</div>
+	<div class="marker2" id="two_text">
+		Ураниум
+	</div>
+	<!-- Эльфы -->
+	<div class="marker" id="three">
+		<a href="#three_modal" class="open_modal"><img src="Circle_big.png"></a>
+	</div>
+	<div class="marker2" id="three_text">
+		Ватсон-лейк
+	</div>
+	<!-- Марго -->
+	<div class="marker" id="four">
+		<a href="#four_modal" class="open_modal"><img src="Circle_big.png"></a>
+	</div>
+	<div class="marker2" id="four_text">
+		???
+	</div>
+	<!-- Мандос -->
+	<div class="marker" id="five">
+		<a href="#five_modal" class="open_modal"><img src="Circle_big.png"></a>
+	</div>
+	<div class="marker2" id="five_text">
+		???
+	</div>
+	<!-- Крепость в низине -->
+	<div class="marker" id="six">
+		<a href="#six_modal" class="open_modal"><img src="Circle_small.png"></a>
+	</div>
+	<div class="marker2" id="six_text">
+		???
+	</div>
+	<!-- Убежище Х -->
+	<div class="marker" id="seven">
+		<a href="#seven_modal" class="open_modal"><img src="Circle_small.png"></a>
+	</div>
+	<div class="marker2" id="seven_text">
+		???
+	</div>
+	<!-- Землянка -->
+	<div class="marker" id="eight">
+		<a href="#eight_modal" class="open_modal"><img src="Circle_small.png"></a>
+	</div>
+	<div class="marker2" id="eight_text">
+		???
+	</div>
+	<!-- Бар -->
+	<div class="marker" id="nine">
+		<a href="#nine_modal_bar" class="open_modal"><img src="Circle_small.png"></a>
+	</div>
+	<div class="marker2" id="nine_text">
+		Бар
+	</div>	
+	<!-- Оружейники -->
+	<div class="marker" id="ten">
+		<a href="#ten_modal_gunrunners" class="open_modal"><img src="Circle_small.png"></a>
+	</div>
+	<div class="marker2" id="ten_text">
+		Оружейники
+	</div>
+	<!-- Бактрия -->
+	<div class="marker" id="eleven">
+		<a href="#eleven_modal" class="open_modal"><img src="Circle_small.png"></a>
+	</div>
+	<div class="marker2" id="eleven_text">
+		???
+	</div>
+	<!-- Бабка -->
+	<div class="marker" id="twelve">
+		<a href="#twelve_modal_raider" class="open_modal"><img src="Circle_small.png"></a>
+	</div>
+	<div class="marker2" id="twelve_text">
+		Рейдеры
+	</div>
+</div>
+<div id="one_modal" class="modal_div">
+			<h3>Монастырь</h3>
+			<p>Локация не открыта.</p>
+</div>
+<div id="two_modal" class="modal_div">
+			<h3>Ураниум-сити</h3>
+			<p>Сообщество гулей<br>
+			Координатор Бендер <a href="http://vk.com/fother">http://vk.com/fother</a></p><br><br>
+			<img src="img/france.jpg">
+</div>
+<div id="three_modal" class="modal_div">
+			<h3>Ватсон-лейк</h3>
+			<p>Канадские партизаны <br>
+			Координатор Маха <a href="http://vk.com/mahmonstr">http://vk.com/mahmonstr</a></p><br><br>
+			<img src="img/elf.jpg">
+</div>
+<div id="four_modal" class="modal_div">
+			<h3>Ванкувер</h3>
+			<p>Локация не открыта.</p><br><br><br>
+			<img src="img/vankouver.jpg">
+</div>
+<div id="five_modal" class="modal_div">
+			<h3>Мандос</h3>
+			<p>Локация не открыта.</p>
+</div>
+<div id="six_modal" class="modal_div">
+			<h3>Неизвестно</h3>
+			<p>Локация не открыта.</p>
+</div>
+<div id="seven_modal" class="modal_div">
+			<h3>Неизвестно</h3>
+			<p>Локация не открыта.</p>
+</div>
+<div id="eight_modal" class="modal_div">
+			<h3>Землянка</h3>
+			<p>Локация не открыта.</p><br><br><br>
+			<img src="img/den.jpg">
+</div>
+<div id="nine_modal_bar" class="modal_div">
+			<h3>Бар</h3>
+			<p>Тут творятся дела<br>
+				Координатор Морфей <a href="http://vk.com/id9630087">http://vk.com/id9630087</a></p>
+</div>
+	<div id="ten_modal_gunrunners" class="modal_div">
+			<h3>Оружейники</h3>
+			<p>Торговля, ремонт и изготовление оружия. Поиск ништяков на руинах древнего мира.<br>
+			Группа ВКонтакте <a href="http://vk.com/club79558758">http://vk.com/club79558758</a></p>
+			<img src="img/GR.jpg">
+</div>
+<div id="eleven_modal" class="modal_div">
+			<h3>Бактрия</h3>
+			<p>Локация не открыта.</p><br><br><br>
+			<img src="img/bactria.jpg">
+</div>
+<div id="twelve_modal_raider" class="modal_div">
+			<h3>Рейдерская бабка</h3>
+			<p>Обещает шмальнуть, но кончились патроны..</p>
+</div>
+<div id="overlay"></div><!-- Подложка -->
+</body>
+</html>
